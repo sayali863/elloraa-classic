@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout | Elloraa</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { ivory:'#F8F3EA', sand:'#E8DCCB', terracotta:'#B86445', maroon:'#5A2631', sage:'#8E9A83', charcoal:'#2B2926' },
+    fontFamily: { serif:['"Playfair Display"','serif'], sans:['Manrope','sans-serif'] }
+  }}}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body{font-family:'Manrope',sans-serif;background:#F8F3EA;color:#2B2926;}
+  .font-serif{font-family:'Playfair Display',serif;}
+</style>
+</head>
+<body>
+
+<header class="border-b border-sand">
+  <div class="max-w-4xl mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-serif text-2xl text-maroon">Elloraa</a>
+    <a href="index.html" class="text-xs font-semibold text-charcoal flex items-center gap-1"><i data-lucide="arrow-left" class="w-4 h-4"></i> Continue Shopping</a>
+  </div>
+</header>
+
+<div id="checkoutView" class="max-w-4xl mx-auto px-4 sm:px-8 py-10 grid md:grid-cols-2 gap-10">
+  <div>
+    <h2 class="font-serif text-2xl text-maroon mb-5">Order Summary</h2>
+    <div id="checkoutItems" class="space-y-4 mb-6"></div>
+    <div class="border-t border-sand pt-4 flex justify-between text-sm font-semibold">
+      <span>Subtotal</span><span id="checkoutSubtotal">₹0</span>
+    </div>
+    <div class="flex justify-between text-sm text-charcoal/60 mt-1">
+      <span>Shipping</span><span>Free</span>
+    </div>
+    <div class="border-t border-sand mt-4 pt-4 flex justify-between text-base font-bold text-maroon">
+      <span>Total</span><span id="checkoutTotal">₹0</span>
+    </div>
+  </div>
+
+  <div>
+    <h2 class="font-serif text-2xl text-maroon mb-5">Delivery Details</h2>
+    <form id="checkoutForm" class="space-y-4">
+      <input required placeholder="Full Name" class="w-full border border-sand bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30">
+      <input required type="tel" placeholder="Phone Number" class="w-full border border-sand bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30">
+      <textarea required placeholder="Full Address" rows="3" class="w-full border border-sand bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30"></textarea>
+      <div class="grid grid-cols-2 gap-3">
+        <input required placeholder="City" class="border border-sand bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30">
+        <input required placeholder="Pincode" class="border border-sand bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30">
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-charcoal mb-2">Payment Method</p>
+        <label class="flex items-center gap-2 mb-2 text-sm"><input type="radio" name="payment" checked> Cash on Delivery</label>
+        <label class="flex items-center gap-2 text-sm"><input type="radio" name="payment"> UPI / Online Payment</label>
+      </div>
+      <button type="submit" class="w-full bg-terracotta hover:bg-[#a4573c] transition text-ivory py-4 rounded-xl text-sm font-bold uppercase tracking-wide">Place Order</button>
+    </form>
+  </div>
+</div>
+
+<div id="successView" class="hidden max-w-lg mx-auto px-4 py-24 text-center">
+  <i data-lucide="check-circle" class="w-14 h-14 text-sage mx-auto mb-5"></i>
+  <h2 class="font-serif text-3xl text-maroon mb-3">Order Placed!</h2>
+  <p class="text-charcoal/70 text-sm mb-1">Order #<span id="orderNumber"></span></p>
+  <p class="text-charcoal/70 text-sm mb-8">We'll reach out on WhatsApp to confirm your order shortly.</p>
+  <a href="index.html" class="inline-block bg-terracotta text-ivory px-8 py-3 rounded-xl text-sm font-bold uppercase tracking-wide">Continue Shopping</a>
+</div>
+
+<script src="store.js"></script>
+<script>
+function renderCheckoutItems(){
+  var cart = getCart();
+  var container = document.getElementById('checkoutItems');
+  if(cart.length === 0){
+    container.innerHTML = '<p class="text-sm text-charcoal/50">Your bag is empty. <a href="index.html" class="text-terracotta underline">Go shopping</a></p>';
+    document.getElementById('checkoutForm').style.display = 'none';
+  } else {
+    container.innerHTML = cart.map(function(item){
+      return '<div class="flex gap-3 pb-3 border-b border-sand">'+
+        '<img src="'+item.image+'" onerror="this.onerror=null;this.src=FALLBACK_IMG;" class="w-14 h-16 object-cover rounded-lg">'+
+        '<div class="flex-1"><p class="text-sm font-semibold">'+item.name+'</p>'+
+        '<p class="text-xs text-charcoal/50">'+item.color+' &middot; '+item.size+' &middot; Qty '+item.qty+'</p></div>'+
+        '<p class="text-sm font-semibold text-maroon">₹'+(item.price*item.qty).toLocaleString('en-IN')+'</p>'+
+      '</div>';
+    }).join('');
+  }
+  var subtotal = cartSubtotal();
+  document.getElementById('checkoutSubtotal').textContent = '₹'+subtotal.toLocaleString('en-IN');
+  document.getElementById('checkoutTotal').textContent = '₹'+subtotal.toLocaleString('en-IN');
+}
+
+document.getElementById('checkoutForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var orderNum = 'ELL' + Math.floor(100000 + Math.random()*900000);
+  document.getElementById('orderNumber').textContent = orderNum;
+  document.getElementById('checkoutView').classList.add('hidden');
+  document.getElementById('successView').classList.remove('hidden');
+  clearCart();
+});
+
+renderCheckoutItems();
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>
